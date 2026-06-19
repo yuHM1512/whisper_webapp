@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VietSTT — Vietnamese Speech Transcriber</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:   #020035;
+  --blue:   #102590;
+  --blue-m: #1A35A0;
+  --sky:    #B5DBFF;
+  --sky-s:  #EBF5FF;
+  --red:    #DC1D25;
+  --white:  #fff;
+  --light:  #F3F6FC;
+  --border: rgba(2,30,71,.1);
+  --text:   #1D1D1D;
+  --muted:  #6B7280;
+  --fh: 'Plus Jakarta Sans','Be Vietnam Pro',sans-serif;
+  --fb: 'Be Vietnam Pro',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fb);background:var(--light);color:var(--text);min-height:100vh}
+
+/* TOPBAR */
+.topbar{background:var(--navy);padding:14px 32px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(2,0,53,.3)}
+.topbar-logo{font-family:var(--fh);font-weight:800;font-size:17px;color:var(--white);letter-spacing:.04em}
+.topbar-logo span{color:var(--sky)}
+.topbar-badge{font-size:10px;background:rgba(181,219,255,.15);border:1px solid rgba(181,219,255,.3);color:var(--sky);padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:.08em}
+.topbar-right{margin-left:auto;font-size:11px;color:rgba(255,255,255,.35)}
+
+/* LAYOUT */
+.main{max-width:1100px;margin:0 auto;padding:32px 24px}
+.cols{display:grid;grid-template-columns:360px 1fr;gap:22px;align-items:start}
+
+/* PANEL */
+.panel{background:var(--white);border-radius:18px;border:1px solid var(--border);overflow:hidden;box-shadow:0 2px 8px rgba(2,0,53,.06)}
+.panel-head{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.panel-head h2{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--navy)}
+.ph-icon{width:30px;height:30px;border-radius:8px;background:var(--sky-s);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.panel-body{padding:20px}
+
+/* UPLOAD ZONE */
+.upload-zone{border:2px dashed var(--sky);border-radius:14px;padding:32px 20px;text-align:center;cursor:pointer;transition:.2s;background:var(--sky-s);position:relative}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--blue);background:#dceeff}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.uz-icon{width:48px;height:48px;border-radius:50%;background:var(--white);box-shadow:0 2px 8px rgba(16,37,144,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+.uz-label{font-family:var(--fh);font-weight:700;font-size:13px;color:var(--blue);margin-bottom:4px}
+.uz-hint{font-size:11px;color:var(--muted)}
+
+/* FILE CHIP */
+.file-chip{margin-top:12px;padding:10px 13px;background:var(--white);border-radius:10px;border:1px solid var(--border);display:none;align-items:center;gap:10px}
+.file-chip.show{display:flex}
+.fc-icon{width:30px;height:30px;border-radius:7px;background:var(--sky-s);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.fc-name{font-size:12px;font-weight:600;color:var(--navy);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fc-size{font-size:10px;color:var(--muted)}
+.fc-rm{cursor:pointer;color:var(--muted);font-size:14px;flex-shrink:0;line-height:1}
+.fc-rm:hover{color:var(--red)}
+
+/* SETTINGS */
+.settings{margin-top:16px;display:flex;flex-direction:column;gap:14px}
+.s-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.s-label .tip{font-size:10px;font-weight:500;background:var(--blue);color:var(--white);padding:1px 7px;border-radius:4px;text-transform:none;letter-spacing:0}
+.model-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.mc{border:2px solid var(--border);border-radius:10px;padding:8px 6px;text-align:center;cursor:pointer;transition:.15s;background:var(--white)}
+.mc:hover{border-color:var(--sky)}
+.mc.active{border-color:var(--blue);background:var(--sky-s)}
+.mc-name{font-family:var(--fh);font-size:12px;font-weight:700;color:var(--navy)}
+.mc.active .mc-name{color:var(--blue)}
+.mc-meta{font-size:9px;color:var(--muted);margin-top:2px}
+
+/* PROCESS BTN */
+.btn-process{width:100%;margin-top:18px;padding:13px;background:linear-gradient(135deg,var(--blue),var(--blue-m));color:var(--white);font-family:var(--fh);font-weight:700;font-size:14px;border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s;letter-spacing:.03em}
+.btn-process:hover:not(:disabled){box-shadow:0 4px 14px rgba(16,37,144,.3);transform:translateY(-1px)}
+.btn-process:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-process.busy{background:linear-gradient(135deg,#374151,#1F2937)}
+
+/* PROGRESS */
+.prog-wrap{margin-top:14px;display:none}
+.prog-wrap.show{display:block}
+.prog-track{height:4px;background:var(--border);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--sky));border-radius:99px;transition:width .4s}
+.prog-fill.spin{width:100%;animation:slide 1.4s ease-in-out infinite}
+@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.prog-msg{font-size:11px;color:var(--muted);margin-top:6px}
+
+/* RIGHT PANEL */
+.r-panel{display:flex;flex-direction:column;min-height:520px}
+.r-toolbar{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.toolbar-right{margin-left:auto;display:flex;gap:6px}
+.btn-sm{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;font-family:var(--fh);border:1.5px solid var(--border);cursor:pointer;color:var(--text);background:var(--white);display:flex;align-items:center;gap:4px;transition:.15s;white-space:nowrap}
+.btn-sm:hover:not(:disabled){border-color:var(--blue);color:var(--blue)}
+.btn-sm:disabled{opacity:.35;cursor:not-allowed}
+
+/* EMPTY STATE */
+.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--muted);text-align:center}
+.es-icon{width:60px;height:60px;border-radius:18px;background:var(--sky-s);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.empty-state h3{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--navy);margin-bottom:6px}
+.empty-state p{font-size:12.5px;line-height:1.65;color:var(--muted)}
+
+/* TIMELINE */
+.tl-body{flex:1;padding:16px 20px;overflow-y:auto;max-height:calc(100vh - 210px)}
+.tl-row{display:flex;gap:14px;padding:11px 0;border-bottom:1px solid var(--border);align-items:flex-start;animation:fadeUp .25s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.tl-row:last-child{border-bottom:none}
+.tl-time{width:100px;flex-shrink:0;padding-top:2px}
+.tl-time .t-start{font-size:12px;font-weight:700;color:var(--blue);font-family:var(--fh)}
+.tl-time .t-end{font-size:10px;color:var(--muted);margin-top:2px}
+.tl-text{font-size:13.5px;color:var(--text);line-height:1.65;flex:1}
+
+/* STATS */
+.stats-bar{padding:10px 20px;background:var(--light);border-top:1px solid var(--border);display:none;gap:20px;align-items:center;flex-wrap:wrap}
+.stats-bar.show{display:flex}
+.st-item{font-size:11px;color:var(--muted)}
+.st-item strong{color:var(--navy);font-weight:700}
+
+/* TYPING */
+.tl-typing{display:flex;gap:14px;padding:12px 0;align-items:center}
+.typing-dots{display:flex;gap:4px}
+.typing-dots span{width:7px;height:7px;border-radius:50%;background:var(--blue);opacity:.3;animation:blink 1.2s infinite}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--navy);color:var(--white);font-size:12px;padding:10px 20px;border-radius:10px;transition:.25s;opacity:0;pointer-events:none;z-index:999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:880px){.cols{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">Viet<span>STT</span></div>
+  <div class="topbar-badge">Local · Private</div>
+  <div class="topbar-right">faster-whisper · Vietnamese</div>
+</div>
+
+<div class="main">
+  <div class="cols">
+
+    <!-- ── LEFT ── -->
+    <div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="ph-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <h2>Upload Audio</h2>
+        </div>
+        <div class="panel-body">
+
+          <div class="upload-zone" id="uploadZone">
+            <input type="file" id="fileInput" accept=".mp3,.mp4,.m4a,.wav,.ogg,.flac,.webm,.mkv">
+            <div class="uz-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+            </div>
+            <div class="uz-label">Kéo thả hoặc click để chọn file</div>
+            <div class="uz-hint">MP3 · M4A · WAV · MP4 · FLAC · OGG · tối đa 500MB</div>
+          </div>
+
+          <div class="file-chip" id="fileChip">
+            <div class="fc-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            </div>
+            <div style="flex:1;overflow:hidden">
+              <div class="fc-name" id="fcName">—</div>
+              <div class="fc-size" id="fcSize">—</div>
+            </div>
+            <div class="fc-rm" id="fcRm">✕</div>
+          </div>
+
+          <div class="settings">
+            <div>
+              <div class="s-label">Ngữ cảnh / Từ khoá <span class="tip">Giúp AI nhận dạng chính xác hơn</span></div>
+              <textarea id="promptInput" rows="3" placeholder="VD: Phỏng vấn về lọc nước, máy lọc RO, Aplus Technologies, Bình Định, kinh doanh SME..." style="width:100%;font-family:var(--fb);font-size:12px;padding:9px 11px;border:1.5px solid var(--border);border-radius:9px;color:var(--text);resize:vertical;outline:none;line-height:1.5"></textarea>
+              <div style="font-size:10px;color:var(--muted);margin-top:4px">Nhập tên người, địa danh, thuật ngữ chuyên ngành — Whisper sẽ ưu tiên nhận dạng những từ này</div>
+            </div>
+            <div>
+              <div class="s-label">Chọn model <span class="tip">Lớn hơn = chính xác hơn</span></div>
+              <div class="model-grid">
+                <div class="mc" data-model="small" onclick="selectModel('small')">
+                  <div class="mc-name">Small</div><div class="mc-meta">~500MB · Nhanh</div>
+                </div>
+                <div class="mc active" data-model="medium" onclick="selectModel('medium')">
+                  <div class="mc-name">Medium</div><div class="mc-meta">~1.5GB · Cân bằng</div>
+                </div>
+                <div class="mc" data-model="large-v3" onclick="selectModel('large-v3')">
+                  <div class="mc-name">Large v3</div><div class="mc-meta">~3GB · Tốt nhất</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="prog-wrap" id="progWrap">
+            <div class="prog-track"><div class="prog-fill spin" id="progFill"></div></div>
+            <div class="prog-msg" id="progMsg">Đang xử lý...</div>
+          </div>
+
+          <button class="btn-process" id="btnProcess" disabled onclick="startProcess()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Bắt đầu xử lý
+          </button>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT ── -->
+    <div class="panel r-panel">
+      <div class="r-toolbar">
+        <div class="ph-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </div>
+        <span style="font-family:var(--fh);font-size:14px;font-weight:700;color:var(--navy)">Transcript</span>
+        <div class="toolbar-right">
+          <button class="btn-sm" id="btnCopy" disabled onclick="copyText()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+          <button class="btn-sm" id="btnTxt" disabled onclick="exportTxt()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            TXT
+          </button>
+          <button class="btn-sm" id="btnSrt" disabled onclick="exportSrt()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            SRT
+          </button>
+          <button class="btn-sm" id="btnDocx" disabled onclick="exportDocx()" style="color:#1D4ED8;border-color:#BFDBFE">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><polyline points="17 13 13 13 13 17"/><polyline points="17 17 13 17"/></svg>
+            DOCX
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty -->
+      <div class="empty-state" id="emptyState">
+        <div class="es-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </div>
+        <h3>Chưa có transcript</h3>
+        <p>Upload file audio và nhấn<br><strong>Bắt đầu xử lý</strong></p>
+      </div>
+
+      <!-- Timeline -->
+      <div class="tl-body" id="tlBody" style="display:none">
+        <div id="tlList"></div>
+        <div class="tl-typing" id="tlTyping" style="display:none">
+          <div style="width:100px;flex-shrink:0"></div>
+          <div class="typing-dots"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-bar" id="statsBar">
+        <div class="st-item"><strong id="stSegs">0</strong> đoạn</div>
+        <div class="st-item"><strong id="stDur">—</strong> phút audio</div>
+        <div class="st-item" id="stLang" style="display:none">Ngôn ngữ: <strong>vi</strong></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let selectedFile = null, currentModel = 'medium'
+let uploadedPath = null, taskId = null, segments = []
+let busy = false
+
+// ── FILE ──────────────────────────────────
+const fileInput = document.getElementById('fileInput')
+const uploadZone = document.getElementById('uploadZone')
+
+fileInput.addEventListener('change', e => { if(e.target.files[0]) pickFile(e.target.files[0]) })
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag') })
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag'))
+uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('drag'); if(e.dataTransfer.files[0]) pickFile(e.dataTransfer.files[0]) })
+document.getElementById('fcRm').addEventListener('click', clearFile)
+
+function pickFile(f) {
+  selectedFile = f
+  document.getElementById('fcName').textContent = f.name
+  document.getElementById('fcSize').textContent = fmtSize(f.size)
+  document.getElementById('fileChip').classList.add('show')
+  document.getElementById('btnProcess').disabled = false
+}
+function clearFile() {
+  selectedFile = null; uploadedPath = null; fileInput.value = ''
+  document.getElementById('fileChip').classList.remove('show')
+  document.getElementById('btnProcess').disabled = true
+}
+function fmtSize(b) { return b < 1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(1)+' MB' }
+
+// ── MODEL ─────────────────────────────────
+function selectModel(m) {
+  currentModel = m
+  document.querySelectorAll('.mc').forEach(c => c.classList.toggle('active', c.dataset.model===m))
+}
+
+// ── PROCESS ───────────────────────────────
+async function startProcess() {
+  if (!selectedFile || busy) return
+  busy = true; segments = []
+
+  // Reset UI
+  document.getElementById('emptyState').style.display = 'none'
+  document.getElementById('tlBody').style.display = 'block'
+  document.getElementById('tlList').innerHTML = ''
+  document.getElementById('tlTyping').style.display = 'flex'
+  document.getElementById('statsBar').classList.remove('show')
+  setBusy(true)
+  setMsg('Đang upload...')
+  document.getElementById('progWrap').classList.add('show')
+  ;['btnCopy','btnTxt','btnSrt','btnDocx'].forEach(id => document.getElementById(id).disabled = true)
+
+  try {
+    // Upload
+    const fd = new FormData(); fd.append('file', selectedFile)
+    const up = await fetch('/upload', {method:'POST', body:fd}).then(r=>r.json())
+    if (up.error) throw new Error(up.error)
+    taskId = up.task_id; uploadedPath = up.path
+    setMsg('Upload xong. Đang bắt đầu transcribe...')
+
+    // Start
+    const tr = await fetch('/transcribe', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({task_id: taskId, path: uploadedPath, model: currentModel, initial_prompt: document.getElementById('promptInput').value.trim()})
+    }).then(r=>r.json())
+    if (tr.error) throw new Error(tr.error)
+
+    // Stream
+    const es = new EventSource(`/stream/${taskId}`)
+    es.onmessage = e => { const m = JSON.parse(e.data); onSSE(m, es) }
+    es.onerror = () => { es.close(); done(false) }
+
+  } catch(err) { toast('Lỗi: '+err.message); done(false) }
+}
+
+function onSSE(msg, es) {
+  if (msg.type==='status') {
+    setMsg(msg.msg)
+  } else if (msg.type==='info') {
+    document.getElementById('stDur').textContent = (msg.duration/60).toFixed(1)
+    setMsg(`Đang transcribe ${(msg.duration/60).toFixed(1)} phút audio...`)
+  } else if (msg.type==='segment') {
+    document.getElementById('tlTyping').style.display = 'none'
+    segments.push(msg)
+    addRow(msg)
+    document.getElementById('stSegs').textContent = segments.length
+  } else if (msg.type==='done') {
+    es.close()
+    document.getElementById('tlTyping').style.display = 'none'
+    setMsg(`Hoàn thành — ${msg.total} đoạn`)
+    done(true)
+    toast(`✓ Xong! ${msg.total} đoạn văn bản`)
+  } else if (msg.type==='error') {
+    es.close(); toast('Lỗi: '+msg.msg); done(false)
+  }
+}
+
+function addRow(seg) {
+  const row = document.createElement('div')
+  row.className = 'tl-row'
+  row.innerHTML = `
+    <div class="tl-time">
+      <div class="t-start">${fmt(seg.start)}</div>
+      <div class="t-end">${fmt(seg.end)}</div>
+    </div>
+    <div class="tl-text">${seg.text}</div>`
+  document.getElementById('tlList').appendChild(row)
+  row.scrollIntoView({behavior:'smooth', block:'end'})
+}
+
+function done(ok) {
+  busy = false
+  setBusy(false)
+  document.getElementById('progFill').classList.remove('spin')
+  document.getElementById('progFill').style.width = ok ? '100%' : '0%'
+  if (ok) {
+    ;['btnCopy','btnTxt','btnSrt','btnDocx'].forEach(id => document.getElementById(id).disabled = false)
+    document.getElementById('statsBar').classList.add('show')
+  }
+}
+
+function setBusy(b) {
+  const btn = document.getElementById('btnProcess')
+  btn.disabled = b
+  btn.classList.toggle('busy', b)
+  btn.innerHTML = b
+    ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Đang xử lý...'
+    : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> Bắt đầu xử lý'
+}
+
+// ── EXPORT ────────────────────────────────
+function copyText() {
+  const t = segments.map(s=>`[${fmt(s.start)}] ${s.text}`).join('\n')
+  navigator.clipboard.writeText(t).then(()=>toast('Đã copy!'))
+}
+function exportTxt() {
+  const t = segments.map(s=>`[${fmt(s.start)} → ${fmt(s.end)}]\n${s.text}`).join('\n\n')
+  dl('transcript.txt', t)
+}
+function exportSrt() {
+  const t = segments.map((s,i)=>`${i+1}\n${srt(s.start)} --> ${srt(s.end)}\n${s.text}`).join('\n\n')
+  dl('transcript.srt', t)
+}
+function dl(name, content) {
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(new Blob([content],{type:'text/plain;charset=utf-8'}))
+  a.download = name; a.click()
+}
+async function exportDocx() {
+  if (!segments.length) return
+  toast('Đang tạo file DOCX...')
+  const fname = selectedFile ? selectedFile.name : 'audio'
+  const res = await fetch('/export/docx', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({segments, filename: fname})
+  })
+  if (!res.ok) { toast('Lỗi tạo DOCX'); return }
+  const blob = await res.blob()
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = `transcript_${new Date().toISOString().slice(0,10)}.docx`
+  a.click()
+  toast('✓ Đã tải DOCX!')
+}
+
+// ── UTILS ─────────────────────────────────
+function fmt(s) { const m=Math.floor(s/60),ss=Math.floor(s%60); return `${m}:${pad(ss)}` }
+function srt(s) { const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=Math.floor(s%60),ms=Math.round((s%1)*1000); return `${pad(h)}:${pad(m)}:${pad(ss)},${String(ms).padStart(3,'0')}` }
+function pad(n) { return String(n).padStart(2,'0') }
+function setMsg(m) { document.getElementById('progMsg').textContent = m }
+function toast(m) { const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800) }
+</script>
+</body>
+</html>
