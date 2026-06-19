@@ -23,7 +23,7 @@ _model_lock  = threading.Lock()
 _task_queues: dict[str, queue.Queue] = {}
 
 
-# -- DEVICE DETECTION ---------------------------------------------------
+# ── DEVICE DETECTION ───────────────────────────────────────────
 
 def _detect_device():
     try:
@@ -38,7 +38,7 @@ _DEVICE, _COMPUTE_TYPE = _detect_device()
 print(f"[*] Runtime device: {_DEVICE} / {_COMPUTE_TYPE}")
 
 
-# -- WHISPER MODEL ------------------------------------------------------
+# ── WHISPER MODEL ──────────────────────────────────────────────
 
 def get_model(size: str) -> WhisperModel:
     with _model_lock:
@@ -53,7 +53,7 @@ def get_model(size: str) -> WhisperModel:
         return _model_cache[size]
 
 
-# -- TRANSCRIPTION WORKER -----------------------------------------------
+# ── TRANSCRIPTION WORKER ───────────────────────────────────────
 
 def run_transcription(task_id: str, filepath: str, model_size: str,
                       initial_prompt: str = ''):
@@ -92,7 +92,7 @@ def run_transcription(task_id: str, filepath: str, model_size: str,
             pass
 
 
-# -- ROUTES -------------------------------------------------------------
+# ── ROUTES ─────────────────────────────────────────────────────
 
 @app.route('/')
 def index():

@@ -26,7 +26,7 @@ Hỗ trợ **GPU (CUDA)** tự động — tốc độ nhanh hơn ~5-10x so vớ
 
 ```bash
 git clone https://github.com/yuHM1512/whisper_webapp.git
-cd whisper-webapp
+cd whisper_webapp
 ```
 
 ### 2. Tạo virtual environment
