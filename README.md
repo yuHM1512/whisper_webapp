@@ -3,7 +3,7 @@
 Flask web app chuyển ngữ âm thanh tiếng Việt bằng [faster-whisper](https://github.com/SYSTRAN/faster-whisper).  
 Hỗ trợ **GPU (CUDA)** tự động — tốc độ nhanh hơn ~5-10x so với CPU.
 
-## Tính năng
+## Tính năngh
 
 - Upload audio (mp3, mp4, m4a, wav, ogg, flac, webm)
 - Streaming transcript theo thời gian thực (SSE)
@@ -25,7 +25,7 @@ Hỗ trợ **GPU (CUDA)** tự động — tốc độ nhanh hơn ~5-10x so vớ
 ### 1. Clone repo
 
 ```bash
-git clone https://github.com/<your-username>/whisper-webapp.git
+git clone https://github.com/yuHM1512/whisper_webapp.git
 cd whisper-webapp
 ```
 
