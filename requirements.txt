@@ -2,6 +2,3 @@ flask>=3.0
 faster-whisper>=1.0
 python-docx>=1.1
 nvidia-cuda-runtime-cu12
-
-# Speaker diarization (optional but recommended on GPU)
-pyannote.audio>=3.1
