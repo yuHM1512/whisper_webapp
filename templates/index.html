@@ -64,6 +64,7 @@ body{font-family:var(--fb);background:var(--light);color:var(--text);min-height:
 .settings{margin-top:16px;display:flex;flex-direction:column;gap:14px}
 .s-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:flex;align-items:center;gap:6px}
 .s-label .tip{font-size:10px;font-weight:500;background:var(--blue);color:var(--white);padding:1px 7px;border-radius:4px;text-transform:none;letter-spacing:0}
+.s-label .tip-opt{font-size:10px;font-weight:500;background:#6B7280;color:var(--white);padding:1px 7px;border-radius:4px;text-transform:none;letter-spacing:0}
 .model-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .mc{border:2px solid var(--border);border-radius:10px;padding:8px 6px;text-align:center;cursor:pointer;transition:.15s;background:var(--white)}
 .mc:hover{border-color:var(--sky)}
@@ -71,6 +72,16 @@ body{font-family:var(--fb);background:var(--light);color:var(--text);min-height:
 .mc-name{font-family:var(--fh);font-size:12px;font-weight:700;color:var(--navy)}
 .mc.active .mc-name{color:var(--blue)}
 .mc-meta{font-size:9px;color:var(--muted);margin-top:2px}
+
+/* HF TOKEN INPUT */
+.hf-row{display:flex;gap:6px;align-items:center}
+.hf-input{flex:1;font-family:var(--fb);font-size:12px;padding:8px 10px;border:1.5px solid var(--border);border-radius:9px;color:var(--text);outline:none;transition:.15s}
+.hf-input:focus{border-color:var(--blue)}
+.hf-toggle{background:none;border:1.5px solid var(--border);border-radius:8px;padding:7px 9px;cursor:pointer;color:var(--muted);font-size:11px;transition:.15s;white-space:nowrap}
+.hf-toggle:hover{border-color:var(--blue);color:var(--blue)}
+.hf-hint{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.5}
+.hf-hint a{color:var(--blue);text-decoration:none}
+.hf-hint a:hover{text-decoration:underline}
 
 /* PROCESS BTN */
 .btn-process{width:100%;margin-top:18px;padding:13px;background:linear-gradient(135deg,var(--blue),var(--blue-m));color:var(--white);font-family:var(--fh);font-weight:700;font-size:14px;border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s;letter-spacing:.03em}
@@ -103,13 +114,32 @@ body{font-family:var(--fb);background:var(--light);color:var(--text);min-height:
 
 /* TIMELINE */
 .tl-body{flex:1;padding:16px 20px;overflow-y:auto;max-height:calc(100vh - 210px)}
-.tl-row{display:flex;gap:14px;padding:11px 0;border-bottom:1px solid var(--border);align-items:flex-start;animation:fadeUp .25s ease}
+.tl-row{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);align-items:flex-start;animation:fadeUp .25s ease}
 @keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 .tl-row:last-child{border-bottom:none}
-.tl-time{width:100px;flex-shrink:0;padding-top:2px}
+.tl-time{width:80px;flex-shrink:0;padding-top:2px}
 .tl-time .t-start{font-size:12px;font-weight:700;color:var(--blue);font-family:var(--fh)}
 .tl-time .t-end{font-size:10px;color:var(--muted);margin-top:2px}
 .tl-text{font-size:13.5px;color:var(--text);line-height:1.65;flex:1}
+
+/* SPEAKER BADGE */
+.tl-spk{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;font-family:var(--fh);flex-shrink:0;margin-top:1px;display:none}
+.tl-spk.show{display:flex}
+.spk-A{background:#DBEAFE;color:#1D4ED8}
+.spk-B{background:#FEE2E2;color:#DC2626}
+.spk-C{background:#D1FAE5;color:#059669}
+.spk-D{background:#FEF3C7;color:#D97706}
+.spk-E{background:#EDE9FE;color:#7C3AED}
+.spk-F{background:#CFFAFE;color:#0891B2}
+.spk-G{background:#FCE7F3;color:#BE185D}
+.spk-other{background:#F3F4F6;color:#374151}
+
+/* SPEAKER LEGEND */
+.spk-legend{display:none;padding:8px 20px;background:var(--light);border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap;align-items:center}
+.spk-legend.show{display:flex}
+.sl-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-right:4px}
+.sl-chip{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--text)}
+.sl-dot{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;font-family:var(--fh)}
 
 /* STATS */
 .stats-bar{padding:10px 20px;background:var(--light);border-top:1px solid var(--border);display:none;gap:20px;align-items:center;flex-wrap:wrap}
@@ -137,7 +167,7 @@ body{font-family:var(--fb);background:var(--light);color:var(--text);min-height:
 <div class="topbar">
   <div class="topbar-logo">Viet<span>STT</span></div>
   <div class="topbar-badge">Local · Private</div>
-  <div class="topbar-right">faster-whisper · Vietnamese</div>
+  <div class="topbar-right">faster-whisper + pyannote · Vietnamese</div>
 </div>
 
 <div class="main">
@@ -175,11 +205,29 @@ body{font-family:var(--fb);background:var(--light);color:var(--text);min-height:
           </div>
 
           <div class="settings">
+            <!-- Domain context -->
             <div>
               <div class="s-label">Ngữ cảnh / Từ khoá <span class="tip">Giúp AI nhận dạng chính xác hơn</span></div>
-              <textarea id="promptInput" rows="3" placeholder="VD: Phỏng vấn về lọc nước, máy lọc RO, Aplus Technologies, Bình Định, kinh doanh SME..." style="width:100%;font-family:var(--fb);font-size:12px;padding:9px 11px;border:1.5px solid var(--border);border-radius:9px;color:var(--text);resize:vertical;outline:none;line-height:1.5"></textarea>
-              <div style="font-size:10px;color:var(--muted);margin-top:4px">Nhập tên người, địa danh, thuật ngữ chuyên ngành — Whisper sẽ ưu tiên nhận dạng những từ này</div>
+              <textarea id="promptInput" rows="2" placeholder="VD: Phỏng vấn về lọc nước, máy lọc RO, Aplus Technologies, Bình Định, kinh doanh SME..." style="width:100%;font-family:var(--fb);font-size:12px;padding:9px 11px;border:1.5px solid var(--border);border-radius:9px;color:var(--text);resize:vertical;outline:none;line-height:1.5"></textarea>
             </div>
+
+            <!-- HF Token (diarization) -->
+            <div>
+              <div class="s-label">
+                HuggingFace Token
+                <span class="tip-opt">Nhận diện giọng nói</span>
+              </div>
+              <div class="hf-row">
+                <input type="password" id="hfToken" class="hf-input" placeholder="hf_xxxxxxxxxxxxxxxxxxxx">
+                <button class="hf-toggle" onclick="toggleToken()">👁 Xem</button>
+              </div>
+              <div class="hf-hint">
+                Tùy chọn — cần để phân biệt <strong>ai đang nói</strong> (Speaker A / B…)<br>
+                Lấy free token: <a href="https://huggingface.co/settings/tokens" target="_blank">huggingface.co/settings/tokens</a>
+              </div>
+            </div>
+
+            <!-- Model -->
             <div>
               <div class="s-label">Chọn model <span class="tip">Lớn hơn = chính xác hơn</span></div>
               <div class="model-grid">
@@ -226,15 +274,17 @@ body{font-family:var(--fb);background:var(--light);color:var(--text);min-height:
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             TXT
           </button>
-          <button class="btn-sm" id="btnSrt" disabled onclick="exportSrt()">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            SRT
-          </button>
+          <button class="btn-sm" id="btnSrt" disabled onclick="exportSrt()">SRT</button>
           <button class="btn-sm" id="btnDocx" disabled onclick="exportDocx()" style="color:#1D4ED8;border-color:#BFDBFE">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><polyline points="17 13 13 13 13 17"/><polyline points="17 17 13 17"/></svg>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             DOCX
           </button>
         </div>
+      </div>
+
+      <!-- Speaker legend -->
+      <div class="spk-legend" id="spkLegend">
+        <span class="sl-label">Giọng nói:</span>
       </div>
 
       <!-- Empty -->
@@ -250,7 +300,8 @@ body{font-family:var(--fb);background:var(--light);color:var(--text);min-height:
       <div class="tl-body" id="tlBody" style="display:none">
         <div id="tlList"></div>
         <div class="tl-typing" id="tlTyping" style="display:none">
-          <div style="width:100px;flex-shrink:0"></div>
+          <div style="width:80px;flex-shrink:0"></div>
+          <div style="width:26px;flex-shrink:0"></div>
           <div class="typing-dots"><span></span><span></span><span></span></div>
         </div>
       </div>
@@ -259,7 +310,7 @@ body{font-family:var(--fb);background:var(--light);color:var(--text);min-height:
       <div class="stats-bar" id="statsBar">
         <div class="st-item"><strong id="stSegs">0</strong> đoạn</div>
         <div class="st-item"><strong id="stDur">—</strong> phút audio</div>
-        <div class="st-item" id="stLang" style="display:none">Ngôn ngữ: <strong>vi</strong></div>
+        <div class="st-item" id="stSpk" style="display:none"><strong id="stSpkN">—</strong> người nói</div>
       </div>
     </div>
 
@@ -271,10 +322,20 @@ body{font-family:var(--fb);background:var(--light);color:var(--text);min-height:
 <script>
 let selectedFile = null, currentModel = 'medium'
 let uploadedPath = null, taskId = null, segments = []
-let busy = false
+let busy = false, hasDiarization = false
+
+// Speaker color palette (matches CSS .spk-X)
+const SPK_CLASSES = ['spk-A','spk-B','spk-C','spk-D','spk-E','spk-F','spk-G','spk-other']
+const SPK_COLORS  = ['#DBEAFE','#FEE2E2','#D1FAE5','#FEF3C7','#EDE9FE','#CFFAFE','#FCE7F3','#F3F4F6']
+const SPK_TEXT    = ['#1D4ED8','#DC2626','#059669','#D97706','#7C3AED','#0891B2','#BE185D','#374151']
+
+function spkClass(label) {
+  const idx = label === '?' ? 7 : label.charCodeAt(0) - 65
+  return SPK_CLASSES[Math.min(idx, 7)]
+}
 
 // ── FILE ──────────────────────────────────
-const fileInput = document.getElementById('fileInput')
+const fileInput  = document.getElementById('fileInput')
 const uploadZone = document.getElementById('uploadZone')
 
 fileInput.addEventListener('change', e => { if(e.target.files[0]) pickFile(e.target.files[0]) })
@@ -297,6 +358,12 @@ function clearFile() {
 }
 function fmtSize(b) { return b < 1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(1)+' MB' }
 
+// ── TOKEN TOGGLE ──────────────────────────
+function toggleToken() {
+  const inp = document.getElementById('hfToken')
+  inp.type = inp.type === 'password' ? 'text' : 'password'
+}
+
 // ── MODEL ─────────────────────────────────
 function selectModel(m) {
   currentModel = m
@@ -306,35 +373,42 @@ function selectModel(m) {
 // ── PROCESS ───────────────────────────────
 async function startProcess() {
   if (!selectedFile || busy) return
-  busy = true; segments = []
+  busy = true; segments = []; hasDiarization = false
 
-  // Reset UI
   document.getElementById('emptyState').style.display = 'none'
   document.getElementById('tlBody').style.display = 'block'
   document.getElementById('tlList').innerHTML = ''
   document.getElementById('tlTyping').style.display = 'flex'
   document.getElementById('statsBar').classList.remove('show')
+  document.getElementById('spkLegend').classList.remove('show')
+  document.getElementById('spkLegend').innerHTML = '<span class="sl-label">Giọng nói:</span>'
+  document.getElementById('stSpk').style.display = 'none'
   setBusy(true)
   setMsg('Đang upload...')
   document.getElementById('progWrap').classList.add('show')
   ;['btnCopy','btnTxt','btnSrt','btnDocx'].forEach(id => document.getElementById(id).disabled = true)
 
+  const hfToken = document.getElementById('hfToken').value.trim()
+
   try {
-    // Upload
     const fd = new FormData(); fd.append('file', selectedFile)
     const up = await fetch('/upload', {method:'POST', body:fd}).then(r=>r.json())
     if (up.error) throw new Error(up.error)
     taskId = up.task_id; uploadedPath = up.path
     setMsg('Upload xong. Đang bắt đầu transcribe...')
 
-    // Start
     const tr = await fetch('/transcribe', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({task_id: taskId, path: uploadedPath, model: currentModel, initial_prompt: document.getElementById('promptInput').value.trim()})
+      body: JSON.stringify({
+        task_id: taskId, path: uploadedPath,
+        model: currentModel,
+        initial_prompt: document.getElementById('promptInput').value.trim(),
+        hf_token: hfToken,
+      })
     }).then(r=>r.json())
     if (tr.error) throw new Error(tr.error)
+    hasDiarization = tr.diarization
 
-    // Stream
     const es = new EventSource(`/stream/${taskId}`)
     es.onmessage = e => { const m = JSON.parse(e.data); onSSE(m, es) }
     es.onerror = () => { es.close(); done(false) }
@@ -343,23 +417,39 @@ async function startProcess() {
 }
 
 function onSSE(msg, es) {
-  if (msg.type==='status') {
+  if (msg.type === 'status') {
     setMsg(msg.msg)
-  } else if (msg.type==='info') {
+  } else if (msg.type === 'info') {
     document.getElementById('stDur').textContent = (msg.duration/60).toFixed(1)
     setMsg(`Đang transcribe ${(msg.duration/60).toFixed(1)} phút audio...`)
-  } else if (msg.type==='segment') {
+  } else if (msg.type === 'segment') {
     document.getElementById('tlTyping').style.display = 'none'
-    segments.push(msg)
+    segments.push({idx: msg.idx, start: msg.start, end: msg.end, text: msg.text})
     addRow(msg)
     document.getElementById('stSegs').textContent = segments.length
-  } else if (msg.type==='done') {
-    es.close()
+  } else if (msg.type === 'done') {
     document.getElementById('tlTyping').style.display = 'none'
-    setMsg(`Hoàn thành — ${msg.total} đoạn`)
+    if (hasDiarization) {
+      setMsg('✅ Transcribe xong! Đang nhận diện giọng nói...')
+      document.getElementById('tlTyping').style.display = 'flex'
+    } else {
+      setMsg(`Hoàn thành — ${msg.total} đoạn`)
+      done(true)
+      es.close()
+      toast(`✓ Xong! ${msg.total} đoạn`)
+    }
+  } else if (msg.type === 'speakers') {
+    document.getElementById('tlTyping').style.display = 'none'
+    applyDiarization(msg.assignments, msg.count)
     done(true)
-    toast(`✓ Xong! ${msg.total} đoạn văn bản`)
-  } else if (msg.type==='error') {
+    es.close()
+    toast(`✓ Xong! ${segments.length} đoạn · ${msg.count} người nói`)
+  } else if (msg.type === 'dia_error') {
+    document.getElementById('tlTyping').style.display = 'none'
+    toast('⚠️ Diarization lỗi: ' + msg.msg)
+    done(true)
+    es.close()
+  } else if (msg.type === 'error') {
     es.close(); toast('Lỗi: '+msg.msg); done(false)
   }
 }
@@ -367,14 +457,48 @@ function onSSE(msg, es) {
 function addRow(seg) {
   const row = document.createElement('div')
   row.className = 'tl-row'
+  row.dataset.idx = seg.idx
   row.innerHTML = `
     <div class="tl-time">
       <div class="t-start">${fmt(seg.start)}</div>
       <div class="t-end">${fmt(seg.end)}</div>
     </div>
+    <div class="tl-spk" id="spk-${seg.idx}"></div>
     <div class="tl-text">${seg.text}</div>`
   document.getElementById('tlList').appendChild(row)
   row.scrollIntoView({behavior:'smooth', block:'end'})
+}
+
+function applyDiarization(assignments, count) {
+  // Update each row with speaker badge
+  const seen = {}
+  Object.entries(assignments).forEach(([idxStr, label]) => {
+    const idx = parseInt(idxStr)
+    const spkEl = document.getElementById(`spk-${idx}`)
+    if (spkEl) {
+      spkEl.textContent = label
+      spkEl.className = `tl-spk show ${spkClass(label)}`
+    }
+    if (segments[idx]) segments[idx].speaker = label
+    if (!seen[label]) seen[label] = true
+  })
+
+  // Build legend
+  const legend = document.getElementById('spkLegend')
+  legend.innerHTML = '<span class="sl-label">Giọng nói:</span>'
+  Object.keys(seen).sort().forEach(label => {
+    const cls = spkClass(label)
+    const chip = document.createElement('div')
+    chip.className = 'sl-chip'
+    chip.innerHTML = `<div class="sl-dot ${cls}">${label}</div> Speaker ${label}`
+    legend.appendChild(chip)
+  })
+  legend.classList.add('show')
+
+  // Stats
+  const stSpk = document.getElementById('stSpk')
+  document.getElementById('stSpkN').textContent = count
+  stSpk.style.display = 'block'
 }
 
 function done(ok) {
@@ -399,15 +523,21 @@ function setBusy(b) {
 
 // ── EXPORT ────────────────────────────────
 function copyText() {
-  const t = segments.map(s=>`[${fmt(s.start)}] ${s.text}`).join('\n')
+  const t = segments.map(s => {
+    const spk = s.speaker ? `[${s.speaker}] ` : ''
+    return `${spk}[${fmt(s.start)}] ${s.text}`
+  }).join('\n')
   navigator.clipboard.writeText(t).then(()=>toast('Đã copy!'))
 }
 function exportTxt() {
-  const t = segments.map(s=>`[${fmt(s.start)} → ${fmt(s.end)}]\n${s.text}`).join('\n\n')
+  const t = segments.map(s => {
+    const spk = s.speaker ? `[${s.speaker}] ` : ''
+    return `${spk}[${fmt(s.start)} → ${fmt(s.end)}]\n${s.text}`
+  }).join('\n\n')
   dl('transcript.txt', t)
 }
 function exportSrt() {
-  const t = segments.map((s,i)=>`${i+1}\n${srt(s.start)} --> ${srt(s.end)}\n${s.text}`).join('\n\n')
+  const t = segments.map((s,i)=>`${i+1}\n${srt(s.start)} --> ${srt(s.end)}\n${s.speaker ? '['+s.speaker+'] ' : ''}${s.text}`).join('\n\n')
   dl('transcript.srt', t)
 }
 function dl(name, content) {
